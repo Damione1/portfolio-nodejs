@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const WorkExperience = require('../models/workExperiences')
+const WorkExperience = require('../models/workExperience')
 
 
 // @route   GET api/workExperiences
@@ -15,8 +15,8 @@ router.get('/', async (req, res) => {
  }
 })
 
-router.get('/:id', getWorkExperiences, (req, res) => {
-    res.json(workExperience)
+router.get('/:id', getWorkExperience, (req, res) => {
+    res.json(res.workExperience)
 })
 
 
@@ -38,29 +38,35 @@ router.post('/', (req, res) => {
 })
 
 
-router.patch('/:id', getWorkExperiences, async (req, res) => {
+router.patch('/:id', getWorkExperience, async (req, res) => {
 
   if (req.body.company != null) {
-    res.workExperiences.company = req.body.company
+    res.workExperience.company = req.body.company
   }
   if (req.body.position != null) {
-    res.workExperiences.position = req.body.position
+    res.workExperience.position = req.body.position
   }
   if (req.body.description != null) {
-    res.workExperiences.description = req.body.description
+    res.workExperience.description = req.body.description
   }
   if (req.body.startDate != null) {
-    res.workExperiences.startDate = req.body.startDate
+    res.workExperience.startDate = req.body.startDate
   }
   if (req.body.endDate != null) {
-    res.workExperiences.endDate = req.body.endDate
+    res.workExperience.endDate = req.body.endDate
+  }
+  if (req.body.current != null) {
+    res.workExperience.current = req.body.current
   }
   if (req.body.user != null) {
-    res.workExperiences.user = req.body.user
+    res.workExperience.user = req.body.user
+  }
+  if(req.body.language != null){
+    res.workExperience.language = req.body.language
   }
   
   try {
-    const updatedWorkExperience = await res.workExperiences.save()
+    const updatedWorkExperience = await res.workExperience.save()
     res.json(updatedWorkExperience)
   } catch (err) {
     res.status(400).json( {message: err.message} )
@@ -69,10 +75,10 @@ router.patch('/:id', getWorkExperiences, async (req, res) => {
   
 })
 
-router.delete('/:id', getWorkExperiences, async (req, res) => {
+router.delete('/:id', getWorkExperience, async (req, res) => {
 
   try {
-    await WorkExperience.remove()
+    await res.workExperience.remove()
     res.status(200).json( {message: 'WorkExperience deleted'} )
   } catch (err) {
     res.status(500).json( {message: err.message} )
@@ -81,19 +87,18 @@ router.delete('/:id', getWorkExperiences, async (req, res) => {
 })
 
 
-async function getWorkExperiences(req, res, next) {
-  let workExperiences
+async function getWorkExperience(req, res, next) {
+  let workExperience
   try {
-    const workExperiences = await WorkExperience.findById( req.params.id )
-    res.workExperiences = workExperiences
-    if (null === workExperiences) {
+    workExperience = await WorkExperience.findById( req.params.id )
+    if (null === workExperience) {
       return res.status(404).json( {message: 'WorkExperience not found'} )
     }
   } catch (err) {
-    res.status(500).json( {message: err.message} )
+    return res.status(500).json( {message: err.message} )
   }
   
-  res.workExperiences = workExperiences
+  res.workExperience = workExperience
   next()
   
 }

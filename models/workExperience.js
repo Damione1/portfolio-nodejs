@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const workExperiencesSchema = new mongoose.Schema({
+const workExperienceSchema = new mongoose.Schema({
 
     company: {
         type: String,
@@ -16,7 +16,12 @@ const workExperiencesSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
-        required: true
+        required: false
+    },
+    current: {
+        type: Boolean,
+        required: true,
+        default: false
     },
     description: {
         type: String,
@@ -25,9 +30,14 @@ const workExperiencesSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
+    language: {
+        type: String,
+        required: true,
+        default: 'en'
+    }
 
 });
 
-module.exports = mongoose.model('WorkExperience', workExperiencesSchema);
+module.exports = mongoose.model('workExperience', workExperienceSchema);
