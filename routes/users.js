@@ -26,13 +26,13 @@ router.get('/:id', getUser, (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = new User({
+    const newUser = await new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
       password: hashedPassword
     })
-    newUser.save(newUser)
+    await newUser.save()
     res.status(201).json(newUser)
   }catch (err) {
     return res.status(500).json( {message: err.message} )

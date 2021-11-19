@@ -20,8 +20,8 @@ router.get('/:id', getWorkExperience, (req, res) => {
 })
 
 
-router.post('/', (req, res) => {
-  const newWorkExperience = new WorkExperience({
+router.post('/', async(req, res) => {
+  const newWorkExperience = await new WorkExperience({
       company: req.body.company,
       position: req.body.position,
       description: req.body.description,
@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
       user: req.body.user
   })
   try {
-      newWorkExperience.save()
+      await newWorkExperience.save()
       res.status(201).json(newWorkExperience)
   } catch (err) {
       res.status(400).json( {message: err.message} )
