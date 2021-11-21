@@ -2,6 +2,9 @@ const express = require('express')
 const router = express.Router()
 const WorkExperience = require('../models/workExperience')
 
+const { authenticateToken } = require('../middlewares/auth')
+const { getWorkExperience } = require('../middlewares/workExperience')
+
 
 // @route   GET api/workExperiences
 // @desc    Get all workExperiences
@@ -20,14 +23,15 @@ router.get('/:id', getWorkExperience, (req, res) => {
 })
 
 
-router.post('/', async(req, res) => {
+router.post('/', authenticateToken, async(req, res) => {
+  console.log(req.user.user._id)
   const newWorkExperience = await new WorkExperience({
       company: req.body.company,
       position: req.body.position,
       description: req.body.description,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      user: req.body.user
+      user: req.user.user._id
   })
   try {
       await newWorkExperience.save()
@@ -38,7 +42,7 @@ router.post('/', async(req, res) => {
 })
 
 
-router.patch('/:id', getWorkExperience, async (req, res) => {
+router.patch('/:id', authenticateToken, getWorkExperience, async (req, res) => {
 
   if (req.body.company != null) {
     res.workExperience.company = req.body.company
@@ -58,9 +62,6 @@ router.patch('/:id', getWorkExperience, async (req, res) => {
   if (req.body.current != null) {
     res.workExperience.current = req.body.current
   }
-  if (req.body.user != null) {
-    res.workExperience.user = req.body.user
-  }
   if(req.body.language != null){
     res.workExperience.language = req.body.language
   }
@@ -75,7 +76,7 @@ router.patch('/:id', getWorkExperience, async (req, res) => {
   
 })
 
-router.delete('/:id', getWorkExperience, async (req, res) => {
+router.delete('/:id', authenticateToken, getWorkExperience, async (req, res) => {
 
   try {
     await res.workExperience.remove()
@@ -85,23 +86,6 @@ router.delete('/:id', getWorkExperience, async (req, res) => {
   }
   
 })
-
-
-async function getWorkExperience(req, res, next) {
-  let workExperience
-  try {
-    workExperience = await WorkExperience.findById( req.params.id )
-    if (null === workExperience) {
-      return res.status(404).json( {message: 'WorkExperience not found'} )
-    }
-  } catch (err) {
-    return res.status(500).json( {message: err.message} )
-  }
-  
-  res.workExperience = workExperience
-  next()
-  
-}
 
 
 module.exports = router

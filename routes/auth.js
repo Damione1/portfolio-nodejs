@@ -4,11 +4,9 @@ const bcrypt = require('bcrypt')
 const router = express.Router()
 
 const User = require('../models/user')
-
-
+const Auth = require('../helpers/auth')
 
 router.post('/login', async (req, res) => {
-  
   try {
     const user = await User.findOne({ email: req.body.email})
         
@@ -17,7 +15,9 @@ router.post('/login', async (req, res) => {
     }
 
     if (await bcrypt.compare(req.body.password, user.password)) {
-      res.status(200).json({message: 'Success'})
+      const accessToken = await Auth.generateAccessToken(user)
+      const refreshToken = await Auth.generateRefreshToken(user)
+      res.status(200).json({'accessToken': accessToken, 'refreshToken': refreshToken})
     } else {
       res.status(400).json({message: 'Invalid password'})
     }

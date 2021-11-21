@@ -4,8 +4,6 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-const jwt = require('jsonwebtoken');
-
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 
 const db = mongoose.connection;

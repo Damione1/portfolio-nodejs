@@ -5,6 +5,8 @@ const router = express.Router()
 
 const User = require('../models/user')
 
+const { authenticateToken } = require('../middlewares/auth')
+const { getUser } = require('../middlewares/users')
 
 // @route   GET api/workExperiences
 // @desc    Get all workExperiences
@@ -23,7 +25,7 @@ router.get('/:id', getUser, (req, res) => {
 })
 
 
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await new User({
@@ -40,7 +42,7 @@ router.post('/', async (req, res) => {
 })
 
 
-router.patch('/:id', getUser, async (req, res) => {
+router.patch('/:id', authenticateToken, getUser, async (req, res) => {
 
   if (req.body.firstName != null) {
     res.user.firstName = req.body.firstName
@@ -62,7 +64,7 @@ router.patch('/:id', getUser, async (req, res) => {
   
 })
 
-router.delete('/:id', getUser, async (req, res) => {
+router.delete('/:id', authenticateToken, getUser, async (req, res) => {
 
   try {
     await res.user.remove()
@@ -72,23 +74,6 @@ router.delete('/:id', getUser, async (req, res) => {
   }
   
 })
-
-
-async function getUser(req, res, next) {
-  let user
-  try {
-    user = await User.findById( req.params.id )
-    if (null === user) {
-      return res.status(404).json( {message: 'User not found'} )
-    }
-  } catch (err) {
-    return res.status(500).json( {message: err.message} )
-  }
-  
-  res.user = user
-  next()
-  
-}
 
 
 module.exports = router
