@@ -3,7 +3,7 @@ const express = require('express')
 
 const router = express.Router()
 
-const User = require('../models/user')
+const userSchema = require('../models/user')
 
 const { authenticateToken } = require('../middlewares/auth')
 const { getUser } = require('../middlewares/users')
@@ -13,7 +13,7 @@ const { getUser } = require('../middlewares/users')
 // @access  Public
 router.get('/', async (req, res) => {
  try {
-   const workExperiences = await User.find()
+   const workExperiences = await userSchema.find()
    res.json(workExperiences)
  } catch (err) {
     res.status(500).json( {message: err.message} )
@@ -28,7 +28,7 @@ router.get('/:id', getUser, (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = await new User({
+    const newUser = await new userSchema({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,

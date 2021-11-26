@@ -3,12 +3,17 @@ const bcrypt = require('bcrypt')
 
 const router = express.Router()
 
-const User = require('../models/user')
+const userSchema = require('../models/user')
+const authShema = require('../models/auth')
 const Auth = require('../helpers/auth')
+const { authenticateToken } = require('../middlewares/auth')
+const jwt = require('jsonwebtoken')
 
 router.post('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email})
+    const user = await userSchema.findOne({ email: req.body.email})
+
+    console.log(user)
         
     if (null === user) {
       return res.status(400).json({message: 'User not found'})
@@ -17,6 +22,13 @@ router.post('/login', async (req, res) => {
     if (await bcrypt.compare(req.body.password, user.password)) {
       const accessToken = await Auth.generateAccessToken(user)
       const refreshToken = await Auth.generateRefreshToken(user)
+      
+      const newToken = await new authShema({
+        user: user._id,
+        refreshToken: refreshToken
+      })
+      newToken.save()
+
       res.status(200).json({'accessToken': accessToken, 'refreshToken': refreshToken})
     } else {
       res.status(400).json({message: 'Invalid password'})
@@ -27,6 +39,44 @@ router.post('/login', async (req, res) => {
   }
   
 })
+
+router.post('/refreshtoken', async (req, res) => {
+
+  const refreshToken = req.body.refreshToken
+  console.log(refreshToken);
+
+  if (refreshToken === null || refreshToken === undefined) {
+    return res.status(401).json({message: 'Missing refresh token'})
+  }
+
+  const tokenUser = await authShema.findOne({refreshToken: refreshToken});
+
+  if(  tokenUser === null) {
+    return res.status(403).json({message: 'This token does not exists'})
+  }
+
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+
+    if (err) {
+      return res.status(403).json({message: 'Invalid token'})
+    }
+
+    console.log(user);
+
+    Auth.generateAccessToken(user).then(accessToken => {
+      res.json({accessToken: accessToken})
+    })
+
+  })
+
+})
+
+router.get('/testauth', authenticateToken, async(req, res) => {
+
+  res.json({message: 'You are authenticated', user: req.user})
+
+})
+
 
 
 
