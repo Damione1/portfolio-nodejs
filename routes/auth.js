@@ -12,8 +12,6 @@ const jwt = require('jsonwebtoken')
 router.post('/login', async (req, res) => {
   try {
     const user = await userSchema.findOne({ email: req.body.email})
-
-    console.log(user)
         
     if (null === user) {
       return res.status(400).json({message: 'User not found'})
@@ -29,7 +27,7 @@ router.post('/login', async (req, res) => {
       })
       newToken.save()
 
-      res.status(200).json({'accessToken': accessToken, 'refreshToken': refreshToken})
+      res.status(200).json({'token': accessToken, 'refreshToken': refreshToken})
     } else {
       res.status(400).json({message: 'Invalid password'})
     }
@@ -41,9 +39,7 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/refreshtoken', async (req, res) => {
-
   const refreshToken = req.body.refreshToken
-  console.log(refreshToken);
 
   if (refreshToken === null || refreshToken === undefined) {
     return res.status(401).json({message: 'Missing refresh token'})
@@ -61,8 +57,6 @@ router.post('/refreshtoken', async (req, res) => {
       return res.status(403).json({message: 'Invalid token'})
     }
 
-    console.log(user);
-
     Auth.generateAccessToken(user).then(accessToken => {
       res.json({accessToken: accessToken})
     })
@@ -71,9 +65,9 @@ router.post('/refreshtoken', async (req, res) => {
 
 })
 
-router.get('/testauth', authenticateToken, async(req, res) => {
+router.get('/getCurrentUser', authenticateToken, async(req, res) => {
 
-  res.json({message: 'You are authenticated', user: req.user})
+  res.json( {user: req.user} )
 
 })
 

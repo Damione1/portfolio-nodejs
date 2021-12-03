@@ -1,6 +1,7 @@
 require ('dotenv'). config();
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 
@@ -12,16 +13,17 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {console.log('connected to mongoDB')});
 
 app.use(express.json())
+app.use(cors());
 
 const workExperiencesRouter = require('./routes/workExperiences')
-app.use('/workExperiences', workExperiencesRouter)
+app.use('/api/workExperiences', workExperiencesRouter)
 
 const userRouter = require('./routes/users')
-app.use('/user', userRouter)
+app.use('/api/user', userRouter)
 
 const authRouter = require('./routes/auth')
-app.use('/auth', authRouter)
+app.use('/api/auth', authRouter)
 
-app.listen(4000, () => {
-    console.log('Server is running on port 4000');
+app.listen(4001, () => {
+    console.log('Server is running on port 4001');
 });

@@ -24,7 +24,6 @@ router.get('/:id', getWorkExperience, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-  console.log(req.user.user._id)
   const newWorkExperience = await new WorkExperience({
       company: req.body.company,
       position: req.body.position,
