@@ -1,5 +1,6 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
+const RefreshToken = require('../models/auth')
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization']
@@ -13,5 +14,21 @@ function authenticateToken(req, res, next) {
     })
 }
 
+async function getRefreshToken(req, res, next) {
+    let refreshToken
+    try {
+        refreshToken = await RefreshToken.findById(req.params.id)
+        if (null === refreshToken) {
+            return res.status(404).json({ message: 'RefreshToken not found' })
+        }
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
 
-module.exports = { authenticateToken }
+    res.refreshToken = refreshToken
+    next()
+
+}
+
+
+module.exports = { authenticateToken, getRefreshToken }
