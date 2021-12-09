@@ -29,8 +29,9 @@ const workExperienceSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: false
+        ref: 'userSchema',
+        required: true,
+        immutable: true
     },
     language: {
         type: String,
