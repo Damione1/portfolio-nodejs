@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const authShema = new mongoose.Schema({
+const authSchema = new mongoose.Schema({
 
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -13,11 +13,17 @@ const authShema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    lastUsed: { 
+    lastUsed: {
         type: Date,
         default: Date.now,
     },
+    sessionId: {
+        type: String,
+    },
+    userAgent: {
+        type: String,
+    }
 
 });
 
-module.exports = mongoose.model('authShema', authShema);
+module.exports = mongoose.model('authSchema', authSchema);

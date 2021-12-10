@@ -4,10 +4,11 @@ const bcrypt = require('bcrypt')
 const router = express.Router()
 
 const userSchema = require('../models/user')
-const authShema = require('../models/auth')
+const authSchema = require('../models/auth')
 const Auth = require('../helpers/auth')
 const { authenticateToken, getRefreshToken } = require('../middlewares/auth')
 const jwt = require('jsonwebtoken')
+const { randomUUID } = require('crypto');
 
 router.post('/login', async(req, res) => {
     try {
@@ -18,12 +19,22 @@ router.post('/login', async(req, res) => {
         }
 
         if (await bcrypt.compare(req.body.password, user.password)) {
-            const accessToken = await Auth.generateAccessToken(user)
-            const refreshToken = await Auth.generateRefreshToken(user)
 
-            const newToken = await new authShema({
+            const userPayload = {
+                _id: user._id,
+                email: user.email,
+                name: user.name,
+                sessionId: randomUUID()
+            }
+
+            const accessToken = await Auth.generateAccessToken(userPayload)
+            const refreshToken = await Auth.generateRefreshToken(userPayload)
+
+            const newToken = await new authSchema({
                 user: user._id,
-                refreshToken: refreshToken
+                refreshToken: refreshToken,
+                sessionId: userPayload.sessionId,
+                userAgent: req.headers['user-agent']
             })
             newToken.save()
 
@@ -38,6 +49,18 @@ router.post('/login', async(req, res) => {
 
 })
 
+router.get('/logout', authenticateToken, async(req, res) => {
+    try {
+        const token = await authSchema.findOne({ sessionId: req.user.sessionId })
+
+        token.remove()
+        res.status(200).json({ message: 'Logout success' })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+
+})
+
 router.post('/refreshToken', async(req, res) => {
     const refreshToken = req.body.refresh_token
 
@@ -45,7 +68,7 @@ router.post('/refreshToken', async(req, res) => {
         return res.status(401).json({ message: 'Missing refresh token' })
     }
 
-    const tokenUser = await authShema.findOne({ refreshToken: refreshToken });
+    const tokenUser = await authSchema.findOneAndUpdate({ refreshToken: refreshToken }, { $set: { lastUsed: new Date() } });
 
     if (tokenUser === null) {
         return res.status(403).json({ message: 'This token does not exists' })
@@ -74,7 +97,7 @@ router.get('/getCurrentUser', authenticateToken, async(req, res) => {
 router.get('/userToken', authenticateToken, async(req, res) => {
 
     try {
-        const tokens = await authShema.find({ user: req.user._id })
+        const tokens = await authSchema.find({ user: req.user._id })
         res.json(tokens)
     } catch (err) {
         res.status(500).json({ message: err.message })
