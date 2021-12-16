@@ -90,7 +90,14 @@ router.post('/refreshToken', async(req, res) => {
 
 router.get('/getCurrentUser', authenticateToken, async(req, res) => {
 
-    res.json({ user: req.user })
+    try {
+        const user = await userSchema.findById(req.user._id)
+        user.password = undefined
+        user.__v = undefined
+        res.json({ user: user })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
 
 })
 
