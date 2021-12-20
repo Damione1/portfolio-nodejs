@@ -1,4 +1,4 @@
-require ('dotenv'). config();
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -10,13 +10,16 @@ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {console.log('connected to mongoDB')});
+db.once('open', () => { console.log('connected to mongoDB') });
 
 app.use(express.json())
 app.use(cors());
 
 const workExperiencesRouter = require('./routes/workExperiences')
 app.use('/api/workExperiences', workExperiencesRouter)
+
+const qualificationsRouter = require('./routes/qualifications')
+app.use('/api/qualifications', qualificationsRouter)
 
 const userRouter = require('./routes/users')
 app.use('/api/user', userRouter)
