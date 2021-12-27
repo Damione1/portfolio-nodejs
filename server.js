@@ -21,6 +21,15 @@ app.use('/api/workExperiences', workExperiencesRouter)
 const qualificationsRouter = require('./routes/qualifications')
 app.use('/api/qualifications', qualificationsRouter)
 
+const projectsRouter = require('./routes/projects')
+app.use('/api/projects', projectsRouter)
+
+const skillsRouter = require('./routes/skills')
+app.use('/api/skills', skillsRouter)
+
+const uploadRouter = require('./routes/fileUploads')
+app.use('/api/upload', uploadRouter)
+
 const userRouter = require('./routes/users')
 app.use('/api/user', userRouter)
 
