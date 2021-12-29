@@ -36,6 +36,8 @@ app.use('/api/user', userRouter)
 const authRouter = require('./routes/auth')
 app.use('/api/auth', authRouter)
 
+app.use('/files', express.static('uploads'))
+
 app.listen(process.env.PORT, () => {
     console.log('Server is running on port' + process.env.PORT);
 });

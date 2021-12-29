@@ -11,6 +11,12 @@ async function getProject(req, res, next) {
         return res.status(500).json({ message: err.message })
     }
 
+    try {
+        project = await project.populate('images', '-user -date -__v')
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+
     res.project = project
     next()
 

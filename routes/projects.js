@@ -3,12 +3,9 @@ const router = express.Router()
 const Project = require('../models/project')
 
 const { authenticateToken } = require('../middlewares/auth')
-const { getProject, upload } = require('../middlewares/project')
+const { getProject } = require('../middlewares/project')
 
 
-// @route   GET api/projects
-// @desc    Get all projects
-// @access  Public
 router.get('/', authenticateToken, async(req, res) => {
     try {
         const projects = await Project.find({ user: req.user._id })
@@ -28,13 +25,21 @@ router.post('/', authenticateToken, async(req, res) => {
     const newProject = await new Project({
         name: req.body.name,
         description: req.body.description,
-        images: req.body.images,
         link: req.body.link,
         stack: req.body.stack,
         user: req.user,
     })
     try {
         await newProject.save()
+
+        await newProject.update({
+            $push: {
+                images: {
+                    $each: req.body.images
+                }
+            }
+        })
+
         res.status(201).json(newProject)
     } catch (err) {
         res.status(400).json({ message: err.message })
@@ -43,8 +48,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getProject, async(req, res) => {
-
-    console.log(req.user);
 
     if (req.body.name != null) {
         res.project.name = req.body.name
@@ -60,6 +63,14 @@ router.patch('/:id', authenticateToken, getProject, async(req, res) => {
     }
     if (req.body.language != null) {
         res.project.language = req.body.language
+    }
+
+    if (req.body.images != null) {
+        await res.project.update({
+            $set: {
+                images: req.body.images
+            }
+        })
     }
 
     try {
