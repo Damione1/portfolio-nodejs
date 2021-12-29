@@ -6,6 +6,12 @@ const File = require('../models/file')
 const { authenticateToken } = require('../middlewares/auth')
 const { getFile, upload } = require('../middlewares/fileUpload')
 
+const { Storage } = require('@google-cloud/storage')
+const storage = new Storage({
+    projectId: process.env.GOOGLE_CLOUD_PROJECT,
+    keyFilename: './portfolio-336617-d9147483d2a8.json'
+})
+const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET)
 
 // @route   GET api/files
 // @desc    Get all files
@@ -25,18 +31,44 @@ router.get('/:id', authenticateToken, getFile, (req, res) => {
 
 
 router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
-
-    const newFile = await new File({
-        name: req.body.name,
-        description: req.body.description,
-        fileName: req.file.filename,
-        user: req.user,
-    })
+    /* upload file to google cloud storage */
     try {
-        await newFile.save()
-        res.status(201).json(newFile)
+        if (!req.file) {
+            return res.status(400).send({ message: "Please upload a file!" });
+        }
+        /*add date and random hash in uploaded file name */
+        const fileName = `${Math.random().toString(36).substring(7)}-${Date.now()}-${req.file.originalname}`
+        const file = bucket.file(fileName)
+        const stream = file.createWriteStream({
+            metadata: {
+                contentType: req.file.mimetype
+            },
+            public: true
+        })
+
+        stream.on('error', (err) => {
+            console.log(err)
+            return res.status(500).send({ message: err.message })
+        })
+        stream.on('finish', async() => {
+            try {
+                const file = await File.create({
+                    user: req.user._id,
+                    fileName: req.file.originalname,
+                    size: req.file.size,
+                    type: req.file.mimetype,
+                    url: `https://storage.googleapis.com/${process.env.GOOGLE_CLOUD_BUCKET}/${fileName}`
+                })
+                res.json(file)
+            } catch (err) {
+                console.log(err)
+                return res.status(500).send({ message: err.message })
+            }
+        })
+        stream.end(req.file.buffer)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        console.log(err)
+        return res.status(500).send({ message: err.message })
     }
 })
 

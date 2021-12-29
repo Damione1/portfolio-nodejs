@@ -1,5 +1,6 @@
+require('dotenv').config();
 const File = require('../models/file');
-const multer = require('multer')
+const Multer = require('multer')
 
 async function getFile(req, res, next) {
     let file
@@ -17,16 +18,19 @@ async function getFile(req, res, next) {
 
 }
 
-/* middleware to handle multer file upload */
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, './uploads')
+/* write upload Multer middleware to hendle memoryStorage and add date in filename */
+const upload = Multer({
+    storage: Multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
     },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname)
+    fileFilter: function(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|JPG)$/)) {
+            return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
     }
-})
 
-const upload = multer({ storage: storage })
+});
 
 module.exports = { getFile, upload }
