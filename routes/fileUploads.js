@@ -31,19 +31,21 @@ router.get('/:id', authenticateToken, getFile, (req, res) => {
 
 
 router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
-    /* upload file to google cloud storage */
+
     try {
         if (!req.file) {
             return res.status(400).send({ message: "Please upload a file!" });
         }
-        /*add date and random hash in uploaded file name */
         const fileName = `${Math.random().toString(36).substring(7)}-${Date.now()}-${req.file.originalname}`
-        const file = bucket.file(fileName)
+            /* save the file inside a '/uploads' folder on the google cloud bucket */
+        const file = bucket.file(`uploads/${fileName}`)
         const stream = file.createWriteStream({
             metadata: {
                 contentType: req.file.mimetype
             },
-            public: true
+            public: true,
+            resumable: false
+
         })
 
         stream.on('error', (err) => {
@@ -54,10 +56,10 @@ router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
             try {
                 const file = await File.create({
                     user: req.user._id,
-                    fileName: req.file.originalname,
+                    fileName,
                     size: req.file.size,
                     type: req.file.mimetype,
-                    url: `https://storage.googleapis.com/${process.env.GOOGLE_CLOUD_BUCKET}/${fileName}`
+                    url: `https://storage.googleapis.com/${process.env.GOOGLE_CLOUD_BUCKET}/uploads/${fileName}`
                 })
                 res.json(file)
             } catch (err) {
@@ -67,7 +69,6 @@ router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
         })
         stream.end(req.file.buffer)
     } catch (err) {
-        console.log(err)
         return res.status(500).send({ message: err.message })
     }
 })
@@ -82,26 +83,19 @@ router.patch('/:id', authenticateToken, getFile, async(req, res) => {
         res.file.description = req.body.description
     }
 
-    try {
-        const updatedFile = await res.file.save()
-        res.json(updatedFile)
-    } catch (err) {
-        res.status(400).json({ message: err.message })
-    }
-
-
 })
 
 router.delete('/:id', authenticateToken, getFile, async(req, res) => {
 
     try {
-        await res.file.remove()
-        res.status(200).json({ message: 'File deleted' })
+        const oldFile = bucket.file(`uploads/${res.file.fileName}`)
+        await oldFile.delete()
+        const file = await res.file.remove()
+        res.json('File deleted')
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        return res.status(500).send({ message: err.message })
     }
 
 })
-
 
 module.exports = router
