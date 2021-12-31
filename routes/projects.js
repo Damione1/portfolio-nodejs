@@ -15,6 +15,16 @@ router.get('/', authenticateToken, async(req, res) => {
     }
 })
 
+router.get('/public/:id', async(req, res) => {
+    try {
+        const project = await Project.find({ user: req.params.id })
+        res.json(project)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+
 router.get('/:id', authenticateToken, getProject, (req, res) => {
     res.json(res.project)
 })

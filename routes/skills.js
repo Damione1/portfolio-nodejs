@@ -15,6 +15,15 @@ router.get('/', authenticateToken, async(req, res) => {
     }
 })
 
+router.get('/public/:id', async(req, res) => {
+    try {
+        const skill = await Skill.find({ user: req.params.id })
+        res.json(skill)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
 router.get('/:id', authenticateToken, getSkill, (req, res) => {
     res.json(res.skill)
 })

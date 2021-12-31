@@ -5,9 +5,9 @@ handlers:
 - url: /.*
   script: server.js
 env_variables:
-    DB_URL: 'mongodb+srv://user:ux99vkknkynk34gtv2w@cluster0.fktfi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-    ACCESS_TOKEN_SECRET: 'e468dbc740e27bac4c3b3a6f0bb660d3e815850d1682b89f8257dc7d2067751fa4cb8c5a82ee04f9a7f78eb9258abe9f1dfd5e5deef4f22961df5903251fec01'
-    REFRESH_TOKEN_SECRET: '77970614335e27576fc129bfd9c359a473f002de8d61bbc3c2b7b8acf85f0d1380d0dad66dfb909d55489ce0817a857446abf594b83d287dd41f4d1084858e76'
+    DB_URL: 'mongodb+srv://user:PiysekONNplD2feT@cluster0.fktfi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+    ACCESS_TOKEN_SECRET: 'f4812b54677177eed2c0fe6f1da8fb1a2060e3df6e9e362f819802348d5cc61f85dcda7989c0fda8d6e484f1e4ee09102fa5e1bc211bc1996ab3ca51264a4eb4'
+    REFRESH_TOKEN_SECRET: '913e4f455584401b39db86e381d88f5aa60236d6aec042d11ca949a6a273f84908f6710f1186de5bce49642abc8b9f7b6c7d1e636e86e56b9a4ccb2db88bf2b7'
     TOKEN_DURATION: '5m'
     UPLOAD_PATH: './public'
     GOOGLE_CLOUD_BUCKET: 'portfolio-336617.appspot.com'
