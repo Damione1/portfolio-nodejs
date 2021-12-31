@@ -3,16 +3,22 @@ const router = express.Router()
 const Skill = require('../models/skill')
 
 const { authenticateToken } = require('../middlewares/auth')
-const { getSkill } = require('../middlewares/skill')
+const { getSkill, upload } = require('../middlewares/skill')
 
 
-// @route   GET api/skills
-// @desc    Get all skills
-// @access  Public
 router.get('/', authenticateToken, async(req, res) => {
     try {
         const skills = await Skill.find({ user: req.user._id })
         res.json(skills)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+router.get('/public/:id', async(req, res) => {
+    try {
+        const skill = await Skill.find({ user: req.params.id })
+        res.json(skill)
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -24,10 +30,11 @@ router.get('/:id', authenticateToken, getSkill, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req.user);
+    console.log(req);
     const newSkill = await new Skill({
         name: req.body.name,
         value: req.body.value,
+        icon: req.body.icon,
         user: req.user,
     })
     try {
@@ -49,10 +56,9 @@ router.patch('/:id', authenticateToken, getSkill, async(req, res) => {
     if (req.body.value != null) {
         res.skill.value = req.body.value
     }
-    if (req.body.language != null) {
-        res.skill.language = req.body.language
+    if (req.body.icon != null) {
+        res.skill.icon = req.body.icon
     }
-
     try {
         const updatedSkill = await res.skill.save()
         res.json(updatedSkill)

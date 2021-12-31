@@ -21,8 +21,14 @@ app.use('/api/workExperiences', workExperiencesRouter)
 const qualificationsRouter = require('./routes/qualifications')
 app.use('/api/qualifications', qualificationsRouter)
 
+const projectsRouter = require('./routes/projects')
+app.use('/api/projects', projectsRouter)
+
 const skillsRouter = require('./routes/skills')
 app.use('/api/skills', skillsRouter)
+
+const uploadRouter = require('./routes/fileUploads')
+app.use('/api/upload', uploadRouter)
 
 const userRouter = require('./routes/users')
 app.use('/api/user', userRouter)
@@ -30,6 +36,9 @@ app.use('/api/user', userRouter)
 const authRouter = require('./routes/auth')
 app.use('/api/auth', authRouter)
 
-app.listen(4001, () => {
-    console.log('Server is running on port 4001');
+
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+    console.log('Server is running on port' + process.env.PORT);
 });

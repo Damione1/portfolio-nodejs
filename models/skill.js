@@ -8,18 +8,19 @@ const skillSchema = new mongoose.Schema({
     },
     value: {
         type: Number,
-        required: true
+        required: true,
+        default: 50,
+    },
+    icon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'fileSchema',
+        autopopulate: true
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userSchema',
         required: true,
         immutable: true
-    },
-    language: {
-        type: String,
-        required: true,
-        default: 'en'
     }
 
 });

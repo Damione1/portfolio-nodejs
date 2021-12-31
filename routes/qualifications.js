@@ -18,6 +18,15 @@ router.get('/', authenticateToken, async(req, res) => {
     }
 })
 
+router.get('/public/:id', async(req, res) => {
+    try {
+        const qualification = await Qualification.find({ user: req.params.id })
+        res.json(qualification)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
 router.get('/:id', authenticateToken, getQualification, (req, res) => {
     res.json(res.qualification)
 })
