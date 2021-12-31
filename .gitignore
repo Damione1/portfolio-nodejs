@@ -1,6 +1,6 @@
 node_modules
 .env
+app.*
 uploads/*
 portfolio-336617-d9147483d2a8.json
-app.yaml
 cloudbuild.yaml
