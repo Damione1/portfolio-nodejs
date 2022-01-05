@@ -21,4 +21,70 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('userSchema', userSchema);
+const userSettingsSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userSchema',
+        required: true,
+        immutable: true
+    },
+    mainTitle: {
+        type: String,
+        required: false
+    },
+    mainSubtitle: {
+        type: String,
+        required: false
+    },
+    workExperiencesTitle: {
+        type: String,
+        required: false
+    },
+    workExperiencesSubtitle: {
+        type: String,
+        required: false
+    },
+    qualificationsTitle: {
+        type: String,
+        required: false
+    },
+    qualificationsSubtitle: {
+        type: String,
+        required: false
+    },
+    projectsTitle: {
+        type: String,
+        required: false
+    },
+    projectsSubtitle: {
+        type: String,
+        required: false
+    },
+    skillsTitle: {
+        type: String,
+        required: false
+    },
+    skillsSubtitle: {
+        type: String,
+        required: false
+    },
+    homeMetaTitle: {
+        type: String,
+        required: false
+    },
+    homeMetaDescription: {
+        type: String,
+        required: false
+    }
+
+});
+
+const User = module.exports = mongoose.model('userSchema', userSchema);
+const Settings = mongoose.model('userSettingsSchema', userSettingsSchema);
+
+
+// Exporting our model objects
+module.exports = {
+    User,
+    Settings
+}

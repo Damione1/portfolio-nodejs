@@ -13,8 +13,7 @@ const skillSchema = new mongoose.Schema({
     },
     icon: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'fileSchema',
-        autopopulate: true
+        ref: 'file'
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -23,6 +22,11 @@ const skillSchema = new mongoose.Schema({
         immutable: true
     }
 
+});
+
+skillSchema.pre('find', function(next) {
+    this.populate('icon', '-user -date -__v');
+    next();
 });
 
 module.exports = mongoose.model('skill', skillSchema);

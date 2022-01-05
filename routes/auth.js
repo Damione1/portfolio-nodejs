@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 
 const router = express.Router()
 
-const userSchema = require('../models/user')
+const { User } = require('../models/user')
 const authSchema = require('../models/auth')
 const Auth = require('../helpers/auth')
 const { authenticateToken, getRefreshToken } = require('../middlewares/auth')
@@ -12,7 +12,10 @@ const { randomUUID } = require('crypto');
 
 router.post('/login', async(req, res) => {
     try {
-        const user = await userSchema.findOne({ email: req.body.email })
+
+        const user = await User.findOne({ email: req.body.email })
+
+        console.log(user)
 
         if (null === user) {
             return res.status(400).json({ message: 'User not found' })
@@ -91,7 +94,7 @@ router.post('/refreshToken', async(req, res) => {
 router.get('/getCurrentUser', authenticateToken, async(req, res) => {
 
     try {
-        const user = await userSchema.findById(req.user._id)
+        const user = await User.findById(req.user._id)
         user.password = undefined
         user.__v = undefined
         res.json({ user: user })
