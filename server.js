@@ -1,8 +1,10 @@
 require('dotenv').config();
 
-const express = require('express');
 const cors = require('cors');
+const express = require('express');
 const app = express();
+app.use(cors());
+app.options('*', cors());
 const mongoose = require('mongoose');
 
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
@@ -13,29 +15,35 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => { console.log('connected to mongoDB') });
 
 app.use(express.json())
-app.use(cors());
+
+app.get('/', (req, res) => {
+    res.send(`Hi! The API is working !`)
+});
+
 
 const workExperiencesRouter = require('./routes/workExperiences')
-app.use('/api/workExperiences', workExperiencesRouter)
+app.use('/workExperiences', workExperiencesRouter)
 
 const qualificationsRouter = require('./routes/qualifications')
-app.use('/api/qualifications', qualificationsRouter)
+app.use('/qualifications', qualificationsRouter)
 
 const projectsRouter = require('./routes/projects')
-app.use('/api/projects', projectsRouter)
+app.use('/projects', projectsRouter)
 
 const skillsRouter = require('./routes/skills')
-app.use('/api/skills', skillsRouter)
+app.use('/skills', skillsRouter)
 
 const uploadRouter = require('./routes/fileUploads')
-app.use('/api/upload', uploadRouter)
+app.use('/upload', uploadRouter)
 
 const userRouter = require('./routes/users')
-app.use('/api/user', userRouter)
+app.use('/user', userRouter)
 
 const authRouter = require('./routes/auth')
-app.use('/api/auth', authRouter)
+app.use('/auth', authRouter)
 
+const publicRouter = require('./routes/public')
+app.use('/public', publicRouter)
 
 const PORT = process.env.PORT || 8080;
 

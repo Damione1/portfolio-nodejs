@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Project = require('../models/project')
+const slugify = require('slugify')
 
 const { authenticateToken } = require('../middlewares/auth')
 const { getProject } = require('../middlewares/project')
@@ -15,16 +16,6 @@ router.get('/', authenticateToken, async(req, res) => {
     }
 })
 
-router.get('/public/:id', async(req, res) => {
-    try {
-        const project = await Project.find({ user: req.params.id })
-        res.json(project)
-    } catch (err) {
-        res.status(500).json({ message: err.message })
-    }
-})
-
-
 router.get('/:id', authenticateToken, getProject, (req, res) => {
     res.json(res.project)
 })
@@ -38,6 +29,7 @@ router.post('/', authenticateToken, async(req, res) => {
         link: req.body.link,
         stack: req.body.stack,
         user: req.user,
+        slug: slugify(`${new Date().toISOString().slice(0, 10) } ${req.body.name}`, { lower: true })
     })
     try {
         await newProject.save()
@@ -59,23 +51,29 @@ router.post('/', authenticateToken, async(req, res) => {
 
 router.patch('/:id', authenticateToken, getProject, async(req, res) => {
 
-    if (req.body.name != null) {
+    if (req.body.name !== null) {
         res.project.name = req.body.name
+        res.project.slug = slugify(`${new Date().toISOString().slice(0, 10) } ${req.project.name}`, { lower: true })
+
     }
-    if (req.body.description != null) {
+
+    if (req.body.description !== null) {
         res.project.description = req.body.description
     }
-    if (req.body.link != null) {
+
+    if (req.body.link !== null) {
         res.project.link = req.body.link
     }
-    if (req.body.stack != null) {
+
+    if (req.body.stack !== null) {
         res.project.stack = req.body.stack
     }
-    if (req.body.language != null) {
+
+    if (req.body.language !== null) {
         res.project.language = req.body.language
     }
 
-    if (req.body.images != null) {
+    if (req.body.images !== null) {
         await res.project.update({
             $set: {
                 images: req.body.images
