@@ -18,15 +18,6 @@ router.get('/', authenticateToken, async(req, res) => {
     }
 })
 
-router.get('/public/:id', async(req, res) => {
-    try {
-        const workExperience = await WorkExperience.find({ user: req.params.id })
-        res.json(workExperience)
-    } catch (err) {
-        res.status(500).json({ message: err.message })
-    }
-})
-
 router.get('/:id', authenticateToken, getWorkExperience, (req, res) => {
     res.json(res.workExperience)
 })

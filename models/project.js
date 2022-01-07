@@ -38,6 +38,11 @@ const projectSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         immutable: true
+    },
+    slug: {
+        type: String,
+        required: true,
+        unique: true
     }
 
 });
