@@ -30,6 +30,9 @@ app.use('/qualifications', qualificationsRouter)
 const projectsRouter = require('./routes/projects')
 app.use('/projects', projectsRouter)
 
+const blogPostsRouter = require('./routes/blogPosts')
+app.use('/blogPosts', blogPostsRouter)
+
 const skillsRouter = require('./routes/skills')
 app.use('/skills', skillsRouter)
 
