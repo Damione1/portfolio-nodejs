@@ -14,8 +14,8 @@ const blogPostSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    category: {
-        type: String,
+    tag: {
+        type: Object,
         required: false
     },
     images: [{

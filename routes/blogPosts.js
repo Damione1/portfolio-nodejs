@@ -22,7 +22,6 @@ router.get('/:id', authenticateToken, getBlogPost, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req);
     const newBlogPost = await new BlogPost({
         title: req.body.title,
         excerpt: req.body.excerpt,
@@ -54,7 +53,7 @@ router.patch('/:id', authenticateToken, getBlogPost, async(req, res) => {
 
     if (req.body.title !== null) {
         res.blogPost.title = req.body.title
-        res.blogPost.slug = slugify(`${new Date().toISOString().slice(0, 10) } ${req.blogPost.title}`, { lower: true })
+        res.blogPost.slug = slugify(`${new Date(res.blogPost.date).toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
     }
 
     if (req.body.excerpt !== null) {
@@ -65,8 +64,8 @@ router.patch('/:id', authenticateToken, getBlogPost, async(req, res) => {
         res.blogPost.content = req.body.content
     }
 
-    if (req.body.category !== null) {
-        res.blogPost.category = req.body.category
+    if (req.body.tag !== null) {
+        res.blogPost.tag = req.body.tag
     }
 
     if (req.body.images !== null) {

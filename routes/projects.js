@@ -22,14 +22,13 @@ router.get('/:id', authenticateToken, getProject, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req);
     const newProject = await new Project({
-        name: req.body.name,
-        description: req.body.description,
+        title: req.body.title,
+        content: req.body.content,
         link: req.body.link,
-        stack: req.body.stack,
+        tags: req.body.tags,
         user: req.user,
-        slug: slugify(`${new Date().toISOString().slice(0, 10) } ${req.body.name}`, { lower: true })
+        slug: slugify(`${new Date().toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
     })
     try {
         await newProject.save()
@@ -51,37 +50,41 @@ router.post('/', authenticateToken, async(req, res) => {
 
 router.patch('/:id', authenticateToken, getProject, async(req, res) => {
 
-    if (req.body.name !== null) {
-        res.project.name = req.body.name
-        res.project.slug = slugify(`${new Date().toISOString().slice(0, 10) } ${req.project.name}`, { lower: true })
-
-    }
-
-    if (req.body.description !== null) {
-        res.project.description = req.body.description
-    }
-
-    if (req.body.link !== null) {
-        res.project.link = req.body.link
-    }
-
-    if (req.body.stack !== null) {
-        res.project.stack = req.body.stack
-    }
-
-    if (req.body.language !== null) {
-        res.project.language = req.body.language
-    }
-
-    if (req.body.images !== null) {
-        await res.project.update({
-            $set: {
-                images: req.body.images
-            }
-        })
-    }
-
     try {
+
+        if (req.body.title !== null) {
+            res.project.title = req.body.title
+            res.project.slug = slugify(`${new Date(res.project.date).toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
+        }
+
+        if (req.body.content !== null) {
+            res.project.content = req.body.content
+        }
+
+        if (req.body.excerpt !== null) {
+            res.project.excerpt = req.body.excerpt
+        }
+
+        if (req.body.link !== null) {
+            res.project.link = req.body.link
+        }
+
+        if (req.body.tags !== null) {
+            res.project.tags = req.body.tags
+        }
+
+        if (req.body.language !== null) {
+            res.project.language = req.body.language
+        }
+
+        if (req.body.images !== null) {
+            await res.project.update({
+                $set: {
+                    images: req.body.images
+                }
+            })
+        }
+
         const updatedProject = await res.project.save()
         res.json(updatedProject)
     } catch (err) {

@@ -2,11 +2,15 @@ const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
 
-    name: {
+    title: {
         type: String,
         required: true
     },
-    description: {
+    content: {
+        type: String,
+        required: false
+    },
+    excerpt: {
         type: String,
         required: false
     },
@@ -19,7 +23,7 @@ const projectSchema = new mongoose.Schema({
         ref: 'file',
         required: false
     }],
-    stack: {
+    tags: {
         type: Object,
         required: false
     },

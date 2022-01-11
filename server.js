@@ -48,6 +48,9 @@ app.use('/auth', authRouter)
 const publicRouter = require('./routes/public')
 app.use('/public', publicRouter)
 
+const optionsRouter = require('./routes/options')
+app.use('/options', optionsRouter)
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
