@@ -30,6 +30,9 @@ app.use('/qualifications', qualificationsRouter)
 const projectsRouter = require('./routes/projects')
 app.use('/projects', projectsRouter)
 
+const blogPostsRouter = require('./routes/blogPosts')
+app.use('/blogPosts', blogPostsRouter)
+
 const skillsRouter = require('./routes/skills')
 app.use('/skills', skillsRouter)
 
@@ -44,6 +47,9 @@ app.use('/auth', authRouter)
 
 const publicRouter = require('./routes/public')
 app.use('/public', publicRouter)
+
+const optionsRouter = require('./routes/options')
+app.use('/options', optionsRouter)
 
 const PORT = process.env.PORT || 8080;
 

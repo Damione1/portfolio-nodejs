@@ -39,8 +39,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 router.patch('/:id', authenticateToken, getSkill, async(req, res) => {
 
-    console.log(req.user);
-
     if (req.body.name != null) {
         res.skill.name = req.body.name
     }

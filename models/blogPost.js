@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 
-const projectSchema = new mongoose.Schema({
+const blogPostSchema = new mongoose.Schema({
 
     title: {
         type: String,
         required: true
     },
-    content: {
-        type: String,
-        required: false
-    },
     excerpt: {
         type: String,
         required: false
     },
-    link: {
+    content: {
         type: String,
+        required: false
+    },
+    tag: {
+        type: Object,
         required: false
     },
     images: [{
@@ -23,10 +23,6 @@ const projectSchema = new mongoose.Schema({
         ref: 'file',
         required: false
     }],
-    tags: {
-        type: Object,
-        required: false
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userSchema',
@@ -52,10 +48,13 @@ const projectSchema = new mongoose.Schema({
 });
 
 /* populate images pre find and findById, minus user date and __v */
-projectSchema.pre('find', function(next) {
+blogPostSchema.pre('find', function(next) {
     this.populate('images', '-user -date -__v');
     next();
 });
+blogPostSchema.pre('find', function(next) {
+    this.populate('user', '-password -__v');
+    next();
+});
 
-
-module.exports = mongoose.model('project', projectSchema);
+module.exports = mongoose.model('blogPost', blogPostSchema);
