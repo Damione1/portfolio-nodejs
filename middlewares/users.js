@@ -1,18 +1,18 @@
-const User = require('../models/user')
+const { User } = require('../models/user')
 const userSettingsSchema = require('../models/user')
 
 async function getUser(req, res, next) {
-    let user
+    let foundUser
     try {
-        user = await User.findById(req.params.id)
-        if (null === user) {
+        foundUser = await User.findById(req.params.id, '-__v')
+        if (null === foundUser) {
             return res.status(404).json({ message: 'User not found' })
         }
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }
 
-    res.user = user
+    res.foundUser = foundUser
     next()
 
 }
