@@ -53,7 +53,7 @@ blogPostSchema.pre('find', function(next) {
     next();
 });
 blogPostSchema.pre('find', function(next) {
-    this.populate('user', '-password -__v');
+    this.populate('user', '-password -__v -email');
     next();
 });
 
