@@ -19,7 +19,9 @@ router.get('/:model/:userId', async(req, res) => {
         let query = { user: req.params.userId }
 
         if (req.query.field && req.query.value) {
-            if (allowedFields.includes(req.query.field)) {} else {
+            if (allowedFields.includes(req.query.field)) {
+                query[req.query.field] = req.query.value
+            } else {
                 throw new Error('Field not allowed', 401)
             }
         }
