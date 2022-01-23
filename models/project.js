@@ -27,6 +27,11 @@ const projectSchema = new mongoose.Schema({
         type: Object,
         required: false
     },
+    stack: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'skill',
+        required: false
+    }],
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userSchema',
@@ -54,6 +59,7 @@ const projectSchema = new mongoose.Schema({
 /* populate images pre find and findById, minus user date and __v */
 projectSchema.pre('find', function(next) {
     this.populate('images', '-user -date -__v');
+    this.populate('stack', 'file name');
     next();
 });
 
