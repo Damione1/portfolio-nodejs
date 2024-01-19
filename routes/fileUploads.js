@@ -31,7 +31,6 @@ router.get('/:id', authenticateToken, getFile, (req, res) => {
 
 
 router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
-
     try {
         if (!req.file) {
             return res.status(400).send({ message: "Please upload a file!" });
@@ -75,18 +74,15 @@ router.post('/', authenticateToken, upload.single('file'), async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getFile, async(req, res) => {
-
     if (req.body.name != null) {
         res.file.name = req.body.name
     }
     if (req.body.description != null) {
         res.file.description = req.body.description
     }
-
 })
 
 router.delete('/:id', authenticateToken, getFile, async(req, res) => {
-
     try {
         const oldFile = bucket.file(`uploads/${res.file.fileName}`)
         await oldFile.delete()
@@ -95,7 +91,6 @@ router.delete('/:id', authenticateToken, getFile, async(req, res) => {
     } catch (err) {
         return res.status(500).send({ message: err.message })
     }
-
 })
 
 module.exports = router

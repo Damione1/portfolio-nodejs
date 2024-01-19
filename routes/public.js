@@ -9,6 +9,17 @@ const models = {
     blogpost: require('../models/blogPost')
 }
 
+const fieldMappings = {
+    workExperience: {
+        position: 'title',
+        company: 'subtitle'
+    },
+    qualification: {
+        school: 'title',
+        grade: 'subtitle'
+    }
+}
+
 router.get('/:model/:userId', async(req, res) => {
     allowedFields = ['name', 'title', 'slug', '_id']
     try {
@@ -17,6 +28,7 @@ router.get('/:model/:userId', async(req, res) => {
         }
         const model = models[req.params.model]
         let query = { user: req.params.userId }
+        let sort = {};
 
         if (req.query.field && req.query.value) {
             if (allowedFields.includes(req.query.field)) {
@@ -25,7 +37,29 @@ router.get('/:model/:userId', async(req, res) => {
                 throw new Error('Field not allowed', 401)
             }
         }
-        const result = await model.find(query)
+
+        if (req.params.model === 'workexperience' || req.params.model === 'qualification') {
+            sort = { startDate: -1 }; // descending order
+        } else if (req.params.model === 'project' || req.params.model === 'blogpost') {
+            sort = { date: -1 }; // descending order
+        } else if (req.params.model === 'skill') {
+            sort = { value: -1 }; // by skill value
+        }
+
+        const result = await model.find(query).sort(sort);
+
+        if (fieldMappings[req.params.model]) {
+            const mapping = fieldMappings[req.params.model];
+            result.forEach(item => {
+                for (const key in mapping) {
+                    if (item[key]) {
+                        item[mapping[key]] = item[key];
+                        delete item[key];
+                    }
+                }
+            });
+        }
+
         res.json(result)
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message })

@@ -7,7 +7,6 @@ const { getOption, upload } = require('../middlewares/option')
 
 
 router.get('/', authenticateToken, async(req, res) => {
-
     const fields = req.query.fields ? req.query.fields.split(',') : []
 
     findOptions = { user: req.user._id }
@@ -30,7 +29,6 @@ router.get('/:id', authenticateToken, getOption, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req);
     const newOption = await new Option({
         name: req.body.name,
         value: req.body.value,
@@ -46,7 +44,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:key', authenticateToken, getOption, async(req, res) => {
-
     if (req.body.key != null) {
         res.option.name = req.body.key
     }
@@ -60,19 +57,15 @@ router.patch('/:key', authenticateToken, getOption, async(req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
-
-
 })
 
 router.delete('/:id', authenticateToken, getOption, async(req, res) => {
-
     try {
         await res.option.remove()
         res.status(200).json({ message: 'Option deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 

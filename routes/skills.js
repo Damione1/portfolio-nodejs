@@ -38,7 +38,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getSkill, async(req, res) => {
-
     if (req.body.name != null) {
         res.skill.name = req.body.name
     }
@@ -54,19 +53,15 @@ router.patch('/:id', authenticateToken, getSkill, async(req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
-
-
 })
 
 router.delete('/:id', authenticateToken, getSkill, async(req, res) => {
-
     try {
         await res.skill.remove()
         res.status(200).json({ message: 'Skill deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 

@@ -49,9 +49,7 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getProject, async(req, res) => {
-
     try {
-
         if (req.body.title !== null) {
             res.project.title = req.body.title
             res.project.slug = slugify(`${new Date(res.project.date).toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
@@ -84,25 +82,20 @@ router.patch('/:id', authenticateToken, getProject, async(req, res) => {
                 }
             })
         }
-
         const updatedProject = await res.project.save()
         res.json(updatedProject)
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
-
-
 })
 
 router.delete('/:id', authenticateToken, getProject, async(req, res) => {
-
     try {
         await res.project.remove()
         res.status(200).json({ message: 'Project deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 
