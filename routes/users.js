@@ -44,7 +44,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 router.patch('/:id', authenticateToken, getUser, async(req, res) => {
     try {
-
         if (req.user._id !== res.foundUser._id.toString()) {
             throw new Error('You are not authorized to update this user')
         }
@@ -69,19 +68,15 @@ router.patch('/:id', authenticateToken, getUser, async(req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message, user: {} })
     }
-
-
 })
 
 router.delete('/:id', authenticateToken, getUser, async(req, res) => {
-
     try {
         await res.foundUser.remove()
         res.status(200).json({ message: 'User deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 

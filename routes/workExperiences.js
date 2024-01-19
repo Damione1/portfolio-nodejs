@@ -9,14 +9,14 @@ const { getWorkExperience } = require('../middlewares/workExperience')
 // @route   GET api/workExperiences
 // @desc    Get all workExperiences
 // @access  Public
-router.get('/', authenticateToken, async(req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
-        const workExperiences = await WorkExperience.find({ user: req.user._id })
-        res.json(workExperiences)
+        const workExperiences = await WorkExperience.find({ user: req.user._id }).sort({ startDate: 1 });
+        res.json(workExperiences);
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        res.status(500).json({ message: err.message });
     }
-})
+});
 
 router.get('/:id', authenticateToken, getWorkExperience, (req, res) => {
     res.json(res.workExperience)
@@ -24,7 +24,6 @@ router.get('/:id', authenticateToken, getWorkExperience, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req.user);
     const newWorkExperience = await new WorkExperience({
         company: req.body.company,
         position: req.body.position,
@@ -43,9 +42,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getWorkExperience, async(req, res) => {
-
-    console.log(req.user);
-
     if (req.body.company != null) {
         res.workExperience.company = req.body.company
     }
@@ -79,14 +75,12 @@ router.patch('/:id', authenticateToken, getWorkExperience, async(req, res) => {
 })
 
 router.delete('/:id', authenticateToken, getWorkExperience, async(req, res) => {
-
     try {
         await res.workExperience.remove()
         res.status(200).json({ message: 'WorkExperience deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 

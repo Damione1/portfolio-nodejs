@@ -24,7 +24,6 @@ router.get('/:id', authenticateToken, getQualification, (req, res) => {
 
 
 router.post('/', authenticateToken, async(req, res) => {
-    console.log(req.user);
     const newQualification = await new Qualification({
         school: req.body.school,
         grade: req.body.grade,
@@ -43,9 +42,6 @@ router.post('/', authenticateToken, async(req, res) => {
 
 
 router.patch('/:id', authenticateToken, getQualification, async(req, res) => {
-
-    console.log(req.user);
-
     if (req.body.school != null) {
         res.qualification.school = req.body.school
     }
@@ -74,19 +70,15 @@ router.patch('/:id', authenticateToken, getQualification, async(req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message })
     }
-
-
 })
 
 router.delete('/:id', authenticateToken, getQualification, async(req, res) => {
-
     try {
         await res.qualification.remove()
         res.status(200).json({ message: 'Qualification deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 
