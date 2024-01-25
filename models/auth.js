@@ -22,7 +22,7 @@ const authSchema = new mongoose.Schema({
     },
     userAgent: {
         type: String,
-    }
+    },
 
 });
 
