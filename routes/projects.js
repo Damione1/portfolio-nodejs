@@ -2,17 +2,20 @@ const express = require('express')
 const router = express.Router()
 const Project = require('../models/project')
 const slugify = require('slugify')
+const Joi = require('joi')
 
 const { authenticateToken } = require('../middlewares/auth')
-const { getProject } = require('../middlewares/project')
+const { getProject, projectValidationSchema } = require('../middlewares/project')
 
 
-router.get('/', authenticateToken, async(req, res) => {
+
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const projects = await Project.find({ user: req.user._id })
         res.json(projects)
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        console.error(err.message)
+        res.status(500).json({ message: 'Server error' })
     }
 })
 
@@ -20,15 +23,20 @@ router.get('/:id', authenticateToken, getProject, (req, res) => {
     res.json(res.project)
 })
 
+router.post('/', authenticateToken, async (req, res) => {
+    const { error } = projectValidationSchema.validate(req.body)
+    if (error) {
+        return res.status(400).json({ message: error.details[0].message })
+    }
 
-router.post('/', authenticateToken, async(req, res) => {
-    const newProject = await new Project({
+    const newProject = new Project({
         title: req.body.title,
         content: req.body.content,
         link: req.body.link,
         tags: req.body.tags,
         user: req.user,
-        slug: slugify(`${new Date().toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
+        status: "published",
+        slug: slugify(`${new Date().toISOString().slice(0, 10)} ${req.body.title}`, { lower: true })
     })
     try {
         await newProject.save()
@@ -43,16 +51,21 @@ router.post('/', authenticateToken, async(req, res) => {
 
         res.status(201).json(newProject)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        console.error(err.message)
+        res.status(400).json({ message: 'Server error' })
     }
 })
 
+router.patch('/:id', authenticateToken, getProject, async (req, res) => {
+    const { error } = projectValidationSchema.validate(req.body)
+    if (error) {
+        return res.status(400).json({ message: error.details[0].message })
+    }
 
-router.patch('/:id', authenticateToken, getProject, async(req, res) => {
     try {
         if (req.body.title !== null) {
             res.project.title = req.body.title
-            res.project.slug = slugify(`${new Date(res.project.date).toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
+            res.project.slug = slugify(`${new Date(res.project.date).toISOString().slice(0, 10)} ${req.body.title}`, { lower: true })
         }
 
         if (req.body.content !== null) {
@@ -85,18 +98,20 @@ router.patch('/:id', authenticateToken, getProject, async(req, res) => {
         const updatedProject = await res.project.save()
         res.json(updatedProject)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        console.error(err.message)
+        res.status(400).json({ message: 'Server error' })
     }
 })
 
-router.delete('/:id', authenticateToken, getProject, async(req, res) => {
+router.delete('/:id', authenticateToken, getProject, async (req, res) => {
     try {
-        await res.project.remove()
+        res.project.status = "deleted";
+        await res.project.save()
         res.status(200).json({ message: 'Project deleted' })
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        console.error(err.message)
+        res.status(500).json({ message: 'Server error' })
     }
 })
-
 
 module.exports = router

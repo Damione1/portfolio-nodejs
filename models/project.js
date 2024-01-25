@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+
+
 const projectSchema = new mongoose.Schema({
 
     title: {
@@ -52,7 +54,7 @@ const projectSchema = new mongoose.Schema({
 });
 
 /* populate images pre find and findById, minus user date and __v */
-projectSchema.pre('find', function(next) {
+projectSchema.pre('find', function (next) {
     this.populate('images', '-user -date -__v');
     next();
 });
