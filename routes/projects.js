@@ -10,6 +10,7 @@ const { getProject, projectValidationSchema } = require('../middlewares/project'
 
 
 router.get('/', authenticateToken, async (req, res) => {
+    console.log(" list projects")
     try {
         const projects = await Project.find({ user: req.user._id })
         res.json(projects)
@@ -26,18 +27,21 @@ router.get('/:id', authenticateToken, getProject, (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
     const { error } = projectValidationSchema.validate(req.body)
     if (error) {
+        console.log(error)
         return res.status(400).json({ message: error.details[0].message })
     }
 
     const newProject = new Project({
         title: req.body.title,
         content: req.body.content,
+        images: [],
         link: req.body.link,
         tags: req.body.tags,
-        user: req.user,
+        user: req.user._id,
         status: "published",
         slug: slugify(`${new Date().toISOString().slice(0, 10)} ${req.body.title}`, { lower: true })
     })
+    console.log(newProject)
     try {
         await newProject.save()
 

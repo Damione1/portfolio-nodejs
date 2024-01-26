@@ -26,11 +26,13 @@ const idValidationSchema = Joi.object({
 const projectValidationSchema = Joi.object({
     title: Joi.string().required(),
     content: Joi.string().required(),
-    link: Joi.string().uri().required(),
     tags: Joi.array().items(Joi.string()),
-    images: Joi.array().items(Joi.string()),
-    language: Joi.string(),
-    excerpt: Joi.string()
+    images: Joi.array(),
+    excerpt: Joi.string(),
+    user: Joi.optional(),
+    language: Joi.optional(),
+    slug: Joi.optional(),
+    date: Joi.date(),
 })
 
 
