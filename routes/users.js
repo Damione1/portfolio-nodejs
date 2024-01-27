@@ -11,7 +11,7 @@ const { getUser, getUserSettings } = require('../middlewares/users')
 // @route   GET api/workExperiences
 // @desc    Get all workExperiences
 // @access  Public
-router.get('/', async(req, res) => {
+router.get('/', async (req, res) => {
     try {
         const user = await User.find()
         res.json(user)
@@ -25,14 +25,13 @@ router.get('/:id', getUser, (req, res) => {
 })
 
 
-router.post('/', authenticateToken, async(req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
         const newUser = await new User({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
-            password: hashedPassword
+            password: req.body.password //hashed during pre save
         })
         await newUser.save()
         res.status(201).json(newUser)
@@ -42,7 +41,7 @@ router.post('/', authenticateToken, async(req, res) => {
 })
 
 
-router.patch('/:id', authenticateToken, getUser, async(req, res) => {
+router.patch('/:id', authenticateToken, getUser, async (req, res) => {
     try {
         if (req.user._id !== res.foundUser._id.toString()) {
             throw new Error('You are not authorized to update this user')
@@ -58,8 +57,7 @@ router.patch('/:id', authenticateToken, getUser, async(req, res) => {
             res.foundUser.email = req.body.email
         }
         if (req.body.password != null) {
-            const hashedPassword = await bcrypt.hash(req.body.password, 10);
-            res.foundUser.password = hashedPassword
+            res.foundUser.password = req.body.password //hashed during pre save
         }
 
         const updatedUser = await res.foundUser.save()
@@ -70,7 +68,7 @@ router.patch('/:id', authenticateToken, getUser, async(req, res) => {
     }
 })
 
-router.delete('/:id', authenticateToken, getUser, async(req, res) => {
+router.delete('/:id', authenticateToken, getUser, async (req, res) => {
     try {
         await res.foundUser.remove()
         res.status(200).json({ message: 'User deleted' })

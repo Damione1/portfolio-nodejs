@@ -20,14 +20,14 @@ const fieldMappings = {
     }
 }
 
-router.get('/:model/:userId', async(req, res) => {
+router.get('/:model/:userId', async (req, res) => {
     allowedFields = ['name', 'title', 'slug', '_id']
     try {
         if (!models[req.params.model]) {
             throw new Error('Post type not found', 401)
         }
         const model = models[req.params.model]
-        let query = { user: req.params.userId }
+        let query = { user: req.params.userId, status: { $ne: "deleted" } };
         let sort = {};
 
         if (req.query.field && req.query.value) {

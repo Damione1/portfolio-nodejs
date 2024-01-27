@@ -10,24 +10,19 @@ const projectSchema = new mongoose.Schema({
     },
     content: {
         type: String,
-        required: false
     },
     excerpt: {
         type: String,
-        required: false
     },
     link: {
         type: String,
-        required: false
     },
     images: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'file',
-        required: false
     }],
     tags: {
         type: Object,
-        required: false
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,25 +32,28 @@ const projectSchema = new mongoose.Schema({
     },
     language: {
         type: String,
-        required: true,
+        enum: ['en', 'fr'],
         default: 'en'
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-        immutable: true
     },
     slug: {
         type: String,
         required: true,
         unique: true
-    }
+    },
+    status: {
+        type: String,
+        enum: ['published', 'draft', 'deleted'],
+        default: 'draft'
+    },
 
-});
+}, { timestamps: true });
+
+projectSchema.index({ slug: 1 });
+projectSchema.index({ user: 1 });
 
 /* populate images pre find and findById, minus user date and __v */
-projectSchema.pre('find', function (next) {
-    this.populate('images', '-user -date -__v');
+projectSchema.pre('findOne', function (next) {
+    this.populate('images', '-user -created_at -__v');
     next();
 });
 

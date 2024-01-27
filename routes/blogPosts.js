@@ -7,7 +7,7 @@ const { authenticateToken } = require('../middlewares/auth')
 const { getBlogPost } = require('../middlewares/blogPost')
 
 
-router.get('/', authenticateToken, async(req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const blogPosts = await BlogPost.find({ user: req.user._id })
         res.json(blogPosts)
@@ -21,7 +21,7 @@ router.get('/:id', authenticateToken, getBlogPost, (req, res) => {
 })
 
 
-router.post('/', authenticateToken, async(req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     const newBlogPost = await new BlogPost({
         title: req.body.title,
         excerpt: req.body.excerpt,
@@ -29,12 +29,12 @@ router.post('/', authenticateToken, async(req, res) => {
         category: req.body.category,
         images: req.body.images,
         user: req.user._id,
-        slug: slugify(`${new Date().toISOString().slice(0, 10) } ${req.body.name}`, { lower: true })
+        slug: slugify(`${new Date().toISOString().slice(0, 10)} ${req.body.name}`, { lower: true })
     })
     try {
         await newBlogPost.save()
 
-        await newBlogPost.update({
+        await newBlogPost.updateOne({
             $push: {
                 images: {
                     $each: req.body.images
@@ -49,11 +49,11 @@ router.post('/', authenticateToken, async(req, res) => {
 })
 
 
-router.patch('/:id', authenticateToken, getBlogPost, async(req, res) => {
+router.patch('/:id', authenticateToken, getBlogPost, async (req, res) => {
 
     if (req.body.title !== null) {
         res.blogPost.title = req.body.title
-        res.blogPost.slug = slugify(`${new Date(res.blogPost.date).toISOString().slice(0, 10) } ${req.body.title}`, { lower: true })
+        res.blogPost.slug = slugify(`${new Date(res.blogPost.date).toISOString().slice(0, 10)} ${req.body.title}`, { lower: true })
     }
 
     if (req.body.excerpt !== null) {
@@ -69,7 +69,7 @@ router.patch('/:id', authenticateToken, getBlogPost, async(req, res) => {
     }
 
     if (req.body.images !== null) {
-        await res.blogPost.update({
+        await res.blogPost.updateOne({
             $set: {
                 images: req.body.images
             }
@@ -86,15 +86,13 @@ router.patch('/:id', authenticateToken, getBlogPost, async(req, res) => {
 
 })
 
-router.delete('/:id', authenticateToken, getBlogPost, async(req, res) => {
-
+router.delete('/:id', authenticateToken, getBlogPost, async (req, res) => {
     try {
         await res.blogPost.remove()
         res.status(200).json({ message: 'BlogPost deleted' })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
-
 })
 
 

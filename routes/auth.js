@@ -103,6 +103,7 @@ router.post('/refreshToken', async (req, res) => {
         return res.status(403).json({ message: 'Invalid refresh token.' });
     }
 
+
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, token_content) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid token.' });

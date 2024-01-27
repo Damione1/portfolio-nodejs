@@ -31,7 +31,7 @@ const blogPostSchema = new mongoose.Schema({
     },
     language: {
         type: String,
-        required: true,
+        enum: ['en', 'fr'],
         default: 'en'
     },
     date: {
@@ -45,14 +45,14 @@ const blogPostSchema = new mongoose.Schema({
         unique: true
     }
 
-});
+}, { timestamps: true });
 
 /* populate images pre find and findById, minus user date and __v */
-blogPostSchema.pre('find', function(next) {
-    this.populate('images', '-user -date -__v');
+blogPostSchema.pre('find', function (next) {
+    this.populate('images', '-user -createdAt -__v');
     next();
 });
-blogPostSchema.pre('find', function(next) {
+blogPostSchema.pre('find', function (next) {
     this.populate('user', '-password -__v -email');
     next();
 });

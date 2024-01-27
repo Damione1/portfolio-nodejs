@@ -39,6 +39,6 @@ const qualificationSchema = new mongoose.Schema({
         default: 'en'
     }
 
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('qualification', qualificationSchema);

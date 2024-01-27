@@ -1,10 +1,13 @@
 const Project = require('../models/project')
 const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
+
 
 async function getProject(req, res, next) {
     const { error } = idValidationSchema.validate(req.params)
     if (error) {
-        return res.status(400).json({ message: error.details[0].message })
+        console.log("validation error", error)
+        return res.status(400).json({ message: JSON.stringify(error.details) });
     }
 
     try {
@@ -15,7 +18,6 @@ async function getProject(req, res, next) {
         res.project = project;
         next();
     } catch (err) {
-        console.error(err);
         res.status(500).json({ message: 'Server Error' });
     }
 }
@@ -23,16 +25,18 @@ async function getProject(req, res, next) {
 const idValidationSchema = Joi.object({
     id: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()
 })
+
+
 const projectValidationSchema = Joi.object({
     title: Joi.string().required(),
     content: Joi.string().required(),
     tags: Joi.array().items(Joi.string()),
-    images: Joi.array(),
-    excerpt: Joi.string(),
+    images: Joi.array().items(Joi.object({ _id: Joi.objectId().required() })).optional(),
+    excerpt: Joi.string().optional().allow(''),
     user: Joi.optional(),
     language: Joi.optional(),
     slug: Joi.optional(),
-    date: Joi.date(),
+    _id: Joi.optional(),
 })
 
 

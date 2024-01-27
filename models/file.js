@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const fileSchema = new mongoose.Schema({
-
     name: {
         type: String,
         required: false
@@ -28,12 +27,6 @@ const fileSchema = new mongoose.Schema({
         required: true,
         immutable: true
     },
-    date: {
-        type: Date,
-        default: Date.now,
-        immutable: true
-    }
-
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('file', fileSchema);
