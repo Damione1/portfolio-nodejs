@@ -5,7 +5,7 @@ const slugify = require('slugify')
 const Joi = require('joi')
 
 const { authenticateToken } = require('../middlewares/auth')
-const { getProject, projectValidationSchema, idValidationSchema } = require('../middlewares/project')
+const { getProject, projectValidationSchema } = require('../middlewares/project')
 
 router.get('/', authenticateToken, async (req, res) => {
     try {
@@ -27,10 +27,12 @@ router.post('/', authenticateToken, async (req, res) => {
         return res.status(400).json({ message: JSON.stringify(error.details) });
     }
 
+    // Filter valid images before creating the project
+    const validImages = req.body.images?.filter(image => image._id) || [];
     const newProject = new Project({
         title: req.body.title,
         content: req.body.content,
-        images: req.body.images,
+        images: validImages,
         link: req.body.link,
         tags: req.body.tags,
         user: req.user._id,
@@ -40,26 +42,12 @@ router.post('/', authenticateToken, async (req, res) => {
     })
     try {
         await newProject.save()
-
-        if (req.body.images?.length > 0) {
-            const validImages = req.body.images.filter(image => image._id);
-            await newProject.updateOne({
-                $push: {
-                    images: {
-                        $each: validImages
-                    }
-                }
-            });
-        }
-
-
-
         res.status(201).json(newProject)
     } catch (err) {
-        console.error(err.message)
         res.status(400).json({ message: 'Server error' })
     }
 })
+
 
 router.patch('/:id', authenticateToken, getProject, async (req, res) => {
     const { error } = projectValidationSchema.validate(req.body)
@@ -71,7 +59,10 @@ router.patch('/:id', authenticateToken, getProject, async (req, res) => {
     try {
         if (req.body.title !== null) {
             res.project.title = req.body.title
-            res.project.slug = slugify(`${new Date(res.project.createdAt).toISOString().slice(0, 10)} ${req.body.title}`, { lower: true })
+        }
+
+        if (req.body.slug !== null) {
+            res.project.slug = req.body.slug
         }
 
         if (req.body.content !== null) {
@@ -104,7 +95,6 @@ router.patch('/:id', authenticateToken, getProject, async (req, res) => {
         const updatedProject = await res.project.save()
         res.json(updatedProject)
     } catch (err) {
-        console.error(err.message)
         res.status(400).json({ message: 'Server error' })
     }
 })
@@ -115,7 +105,6 @@ router.delete('/:id', authenticateToken, getProject, async (req, res) => {
         await res.project.save()
         res.status(200).json({ message: 'Project deleted' })
     } catch (err) {
-        console.error(err.message)
         res.status(500).json({ message: 'Server error' })
     }
 })

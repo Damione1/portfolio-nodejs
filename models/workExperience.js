@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 
 const workExperienceSchema = new mongoose.Schema({
-
-    company: {
+    subTitle: {
         type: String,
         required: true
     },
-    position: {
+    title: {
         type: String,
         required: true
     },
@@ -35,10 +34,17 @@ const workExperienceSchema = new mongoose.Schema({
     },
     language: {
         type: String,
-        required: true,
+        enum: ['en', 'fr'],
         default: 'en'
-    }
+    },
+    status: {
+        type: String,
+        enum: ['published', 'draft', 'deleted'],
+        default: 'draft'
+    },
 
-});
+}, { timestamps: true });
+
+workExperienceSchema.index({ user: 1 });
 
 module.exports = mongoose.model('workExperience', workExperienceSchema);

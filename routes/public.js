@@ -1,5 +1,6 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const Joi = require('joi');
 
 const models = {
     project: require('../models/project'),
@@ -20,36 +21,42 @@ const fieldMappings = {
     }
 }
 
+const sortFields = {
+    workexperience: { startDate: -1 },
+    qualification: { startDate: -1 },
+    project: { date: -1 },
+    blogpost: { date: -1 },
+    skill: { value: -1 }
+};
+
+const allowedFields = ['name', 'title', 'slug', '_id']
+
+const schema = Joi.object({
+    model: Joi.string().valid(...Object.keys(models)).required(),
+    userId: Joi.string().required(),
+    field: Joi.string().valid(...allowedFields).optional(),
+    value: Joi.any().optional()
+});
+
 router.get('/:model/:userId', async (req, res) => {
-    allowedFields = ['name', 'title', 'slug', '_id']
     try {
-        if (!models[req.params.model]) {
-            throw new Error('Post type not found', 401)
-        }
-        const model = models[req.params.model]
-        let query = { user: req.params.userId, status: { $ne: "deleted" } };
-        let sort = {};
-
-        if (req.query.field && req.query.value) {
-            if (allowedFields.includes(req.query.field)) {
-                query[req.query.field] = req.query.value
-            } else {
-                throw new Error('Field not allowed', 401)
-            }
+        const { error, value } = schema.validate({ ...req.params, ...req.query });
+        if (error) {
+            return res.status(400).json({ message: error.details[0].message });
         }
 
-        if (req.params.model === 'workexperience' || req.params.model === 'qualification') {
-            sort = { startDate: -1 }; // descending order
-        } else if (req.params.model === 'project' || req.params.model === 'blogpost') {
-            sort = { date: -1 }; // descending order
-        } else if (req.params.model === 'skill') {
-            sort = { value: -1 }; // by skill value
+        const { model: modelName, userId, field, value: fieldValue } = value;
+        const model = models[modelName];
+        const query = { user: userId, status: { $ne: "deleted" } };
+
+        if (field && fieldValue) {
+            query[field] = fieldValue;
         }
 
-        const result = await model.find(query).sort(sort);
+        const result = await model.find(query).sort(sortFields[modelName]);
 
-        if (fieldMappings[req.params.model]) {
-            const mapping = fieldMappings[req.params.model];
+        if (fieldMappings[modelName]) {
+            const mapping = fieldMappings[modelName];
             result.forEach(item => {
                 for (const key in mapping) {
                     if (item[key]) {
