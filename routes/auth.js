@@ -4,11 +4,6 @@ const bcrypt = require('bcrypt')
 const router = express.Router()
 const Joi = require('joi');
 
-const loginSchema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().min(8).required()
-});
-
 const { User } = require('../models/user')
 const authSchema = require('../models/auth')
 const Auth = require('../helpers/auth')
@@ -20,9 +15,16 @@ const durationNumber = Number(duration.slice(0, -1)); // convert duration to num
 
 router.post('/login', async (req, res) => {
     try {
-        const { error } = schema.validate(req.body);
+        const { error } = Joi.object({
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).required(),
+            csrfToken: Joi.string().optional(),
+            redirect: Joi.string().optional(),
+            callbackUrl: Joi.string().optional(),
+            json: Joi.string().optional(),
+        }).validate(req.body);
         if (error) {
-            return res.status(400).json({ message: error.details[0].message });
+            return res.status(400).json({ message: "Validation error: " + JSON.stringify(error.details) });
         }
 
         const { email, password } = req.body;
@@ -37,10 +39,12 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid password.' });
         }
 
+        console.log("user: ", user)
+
         const userPayload = {
             _id: user._id,
             email: user.email,
-            name: user.name,
+            name: `${user.firstName} ${user.lastName}`,
             sessionId: randomUUID()
         };;
 
@@ -53,26 +57,24 @@ router.post('/login', async (req, res) => {
             sessionId: userPayload.sessionId,
             userAgent: req.headers['user-agent'],
         });
-
         await newToken.save();
-
 
         return res.status(200).json({
             refresh_token: refreshToken,
             token: accessToken,
             expires_in: durationNumber * 60,
             userId: user._id,
-            userFullName: user.fullName
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.email
         });
     } catch (err) {
+        console.log("error: ", err.message)
         res.status(500).json({
             message: 'Internal server error.',
             error: err.message
         });
     }
 });
-
-
 
 router.get('/logout', authenticateToken, async (req, res) => {
     try {
@@ -94,11 +96,12 @@ router.get('/logout', authenticateToken, async (req, res) => {
     }
 });
 
-
 router.post('/refreshToken', async (req, res) => {
     const { refresh_token: refreshToken } = req.body;
 
-    const { error } = schema.validate(req.body);
+    const { error } = Joi.object({
+        refresh_token: Joi.string().required()
+    }).validate(req.body);
     if (error) {
         return res.status(401).json({ message: error.details[0].message });
     }
@@ -148,8 +151,14 @@ router.get('/userToken', authenticateToken, async (req, res) => {
     }
 });
 
-
 router.delete('/userToken/:id', authenticateToken, getRefreshToken, async (req, res) => {
+    const { error } = Joi.object({
+        refresh_token: Joi.string().required()
+    }).validate(req.params)
+    if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+    }
+
     try {
         await res.refreshToken.remove()
         res.status(200).json({ message: 'Token deleted' })
@@ -157,8 +166,5 @@ router.delete('/userToken/:id', authenticateToken, getRefreshToken, async (req, 
         res.status(500).json({ message: err.message })
     }
 })
-
-
-
 
 module.exports = router

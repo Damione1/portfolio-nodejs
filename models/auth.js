@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const authSchema = new mongoose.Schema({
-
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -25,5 +24,7 @@ const authSchema = new mongoose.Schema({
     },
 
 });
+
+
 
 module.exports = mongoose.model('authSchema', authSchema);

@@ -62,8 +62,6 @@ router.patch('/:id', authenticateToken, getWorkExperience, async (req, res) => {
         return res.status(400).json({ message: JSON.stringify(error.details) });
     }
 
-    console.log("req.body", req.body)
-
     if (req.body.subTitle != null) {
         res.workExperience.subTitle = req.body.subTitle
     }
